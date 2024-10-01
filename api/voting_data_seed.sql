@@ -9,7 +9,6 @@ INSERT INTO Voters (Name, HasVoted) VALUES ('Obi-Wan Kenobi', 0);
 INSERT INTO Voters (Name, HasVoted) VALUES ('Chewbacca', 0);
 INSERT INTO Voters (Name, HasVoted) VALUES ('R2-D2', 0);
 INSERT INTO Voters (Name, HasVoted) VALUES ('C-3PO', 0);
-INSERT INTO Voters (Name, HasVoted) VALUES ('Emperor Palpatine', 0);
 INSERT INTO Candidates (Name, VoteCount) VALUES ('Joker', 0);
 INSERT INTO Candidates (Name, VoteCount) VALUES ('Harley Quinn', 0);
 INSERT INTO Candidates (Name, VoteCount) VALUES ('Penguin', 0);
