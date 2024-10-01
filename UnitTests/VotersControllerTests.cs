@@ -86,6 +86,22 @@ namespace UnitTests
         }
 
         [Fact]
+        public async Task AddNewVoter_ReturnsConfict_WhenVoterExsists()
+        {
+            // Arrange
+            var existingVoter = new Voter { Id = 1, Name = "Luke Skywalker" };
+            var newVoter = new Voter { Id = 1, Name = "Darth Vader" };
+
+            _mockContext.Setup(c => c.Voters.FindAsync(existingVoter.Id)).ReturnsAsync(existingVoter);
+
+            //Act
+            var result = await _controller.AddNewVoter(newVoter);
+
+            //Assert
+            result.Result.Should().BeOfType<ConflictObjectResult>();
+        }
+
+        [Fact]
         public async Task AddNewVoter_ThrowsException_WhenSaveFails()
         {
             //Arrange
@@ -99,6 +115,40 @@ namespace UnitTests
             //Assert
             result.Result.Should().BeOfType<ObjectResult>();
             (result.Result as ObjectResult).StatusCode.Should().Be(500);
+        }
+
+        [Fact]
+        public async Task GetVoter_ReturnsVoter()
+        {
+            // Arrange
+            var voter = new Voter { Id = 1, Name = "Luke Skywalker" };
+
+            _mockContext.Setup(c => c.Voters.FindAsync(voter.Id)).ReturnsAsync(voter);
+
+            //Act
+            var result = await _controller.GetVoter(voter.Id);
+
+            //Assert
+            result.Result.Should().BeOfType<OkObjectResult>();
+            var okResult = result.Result as OkObjectResult;
+            var returnedVoter = okResult.Value as Voter;
+            returnedVoter.Should().BeEquivalentTo(voter);
+        }
+
+        [Fact]
+        public async Task GetVoter_ReturnsNotFound_WhenVoterNotInDatabase()
+        {
+            // Arrange
+            var voter = new Voter { Id = 1, Name = "Luke Skywalker" };
+
+            _mockContext.Setup(c => c.Voters.FindAsync(voter.Id)).ReturnsAsync(null as Voter);
+
+            //Act
+            var result = await _controller.GetVoter(voter.Id);
+
+            //Assert
+            result.Result.Should().BeOfType<NotFoundResult>();
+            (result.Result as NotFoundResult).StatusCode.Should().Be(404);
         }
     }
 }
