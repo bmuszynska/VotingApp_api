@@ -14,13 +14,21 @@ namespace api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Voter>>> GetVoters()
         {
-            return await _context.Voters.ToListAsync();
+            try
+            {
+                return await _context.Voters.ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message, stackTrace = ex.StackTrace });
+            }
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Voter>> GetVoter(int id)
         {
             var voter = await _context.Voters.FindAsync(id);
+
             if (voter == null)
             {
                 return NotFound();
@@ -58,6 +66,7 @@ namespace api.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message, stackTrace = ex.StackTrace });
             }
+
             return CreatedAtAction(nameof(GetVoter), new { id = voter.Id }, voter);
         }
 
