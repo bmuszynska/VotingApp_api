@@ -7,11 +7,8 @@ namespace api.Controllers
 {
     public class VotersController : BaseApiController
     {
-        private readonly VoteAppContext _context;
-
-        public VotersController(VoteAppContext context)
+        public VotersController(IVoteAppContext context) : base(context)
         {
-            _context = context;
         }
 
         [HttpGet]
@@ -29,38 +26,53 @@ namespace api.Controllers
                 return NotFound();
             }
 
-            return voter;
+            return Ok(voter);
         }
 
         [HttpPost]
         public async Task<ActionResult<Voter>> AddNewVoter(Voter voter)
         {
-            _context.Voters.Add(voter);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetVoter), new { id = voter.Id }, voter);
-        }
-
-        [HttpPut("{id}")]
-        public async Task<ActionResult<Voter>> VoterHasVoted(int id, Voter voter)
-        {
-            if (id != voter.Id)
+            if (voter.Id != 0)
             {
-                return BadRequest();
+                var existingVoter = await GetVoter(voter.Id);
+                if (existingVoter.Result is not NotFoundResult)
+                {
+                    return Conflict("A voter with the same ID already exists.");
+                }
             }
 
-            _context.Entry(voter).State = EntityState.Modified;
-
+            _context.Voters.Add(voter);
             try
             {
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
-                throw;
+                return StatusCode(StatusCodes.Status500InternalServerError, "A concurrency error occurred while saving changes to the database.");
+            }
+            catch (DbUpdateException dbEx)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while saving changes to the database.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message, stackTrace = ex.StackTrace });
+            }
+            return CreatedAtAction(nameof(GetVoter), new { id = voter.Id }, voter);
+        }
+
+        [HttpPatch("{id}/hasVoted")]
+        public async Task<ActionResult<Voter>> HasVoted(int id)
+        {
+            var voter = await _context.Voters.FindAsync(id);
+
+            if (voter == null)
+            {
+                return NotFound();
             }
 
-            return Ok(voter);
+            voter.HasVoted = true;
+            return SaveChanges(voter).Result;
         }
     }
 }
