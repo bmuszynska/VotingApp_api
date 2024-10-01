@@ -483,3 +483,5 @@ $RECYCLE.BIN/
 # Vim temporary swap files
 *.swp
 voting-app-client/
+api/VotingAppDb.db-shm
+api/VotingAppDb.db-wal
