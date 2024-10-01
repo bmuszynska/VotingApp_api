@@ -42,26 +42,43 @@ namespace api.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<Candidate>> CandidateGotVote(int id, Candidate candidate)
+        public async Task<ActionResult<Candidate>> CandidateGotVote(int id)
         {
-            if (id != candidate.Id)
+            var candidate = _context.Candidates.FindAsync(id).Result;
+            if (candidate == null)
             {
                 return BadRequest();
             }
 
-            var candidateOriginal = _context.Candidates.FindAsync(id);
-            candidateOriginal.Result.VoteCount++;
+            candidate.VoteCount++;
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                throw;
-            }
+            await _context.SaveChangesAsync();
 
             return Ok(candidate);
         }
+
+        /*
+                [HttpPut("{id}")]
+                public async Task<ActionResult<Candidate>> CandidateGotVote(int id, Candidate candidate)
+                {
+                    if (id != candidate.Id)
+                    {
+                        return BadRequest();
+                    }
+
+                    var candidateOriginal = _context.Candidates.FindAsync(id);
+                    candidateOriginal.Result.VoteCount++;
+
+                    try
+                    {
+                        await _context.SaveChangesAsync();
+                    }
+                    catch (DbUpdateConcurrencyException)
+                    {
+                        throw;
+                    }
+
+                    return Ok(candidate);
+                }*/
     }
 }
