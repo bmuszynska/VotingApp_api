@@ -49,7 +49,6 @@ namespace api.Controllers
                 return BadRequest();
             }
 
-            voter.HasVoted = true;
             _context.Entry(voter).State = EntityState.Modified;
 
             try
