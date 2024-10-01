@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddCors();
+builder.Services.AddScoped<IVoteAppContext, VoteAppContext>();
 
 builder.Services.AddControllers();
 builder.Services.AddDbContext<VoteAppContext>(opt =>
@@ -24,6 +26,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseAuthorization();
+app.UseCors(c => c.WithOrigins("http://localhost:4200")
+            .AllowAnyHeader()
+            .AllowAnyMethod());
 
 app.MapControllers();
 
