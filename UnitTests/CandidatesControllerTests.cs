@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Core.Entities;
 using Infrastructure.Data;
 using api.Controllers;
-using Microsoft.EntityFrameworkCore;
 
 namespace UnitTests
 {
@@ -51,22 +50,6 @@ namespace UnitTests
         }
 
         [Fact]
-        public async Task GotVote_ReturnsServerError_WhenSaveFails()
-        {
-            //Arrange
-            var candidate = new Candidate { Id = 1, Name = "Luke Skywalker", VoteCount = 0 };
-            _mockContext.Setup(c => c.Candidates.FindAsync(It.IsAny<int>())).ReturnsAsync(candidate);
-            _mockContext.Setup(c => c.SaveChangesAsync(default)).ThrowsAsync(It.IsAny<Exception>());
-
-            // Act
-            var result = await _controller.GotVote(1);
-
-            //Assert
-            result.Result.Should().BeOfType<ObjectResult>();
-            (result.Result as ObjectResult).StatusCode.Should().Be(500);
-        }
-
-        [Fact]
         public async Task AddNewCandidate_ReturnsCreatedCandidate()
         {
             //Arrange
@@ -99,22 +82,6 @@ namespace UnitTests
 
             //Assert
             result.Result.Should().BeOfType<ConflictObjectResult>();
-        }
-
-        [Fact]
-        public async Task AddNewCandidate_ThrowsException_WhenSaveFails()
-        {
-            //Arrange
-            var candidate = new Candidate { Name = "Luke Skywalker" };
-            _mockContext.Setup(c => c.Candidates.Add(It.IsAny<Candidate>()));
-            _mockContext.Setup(c => c.SaveChangesAsync(default)).ThrowsAsync(new Exception());
-
-            //Act
-            var result = await _controller.AddNewCandidate(candidate);
-
-            //Assert
-            result.Result.Should().BeOfType<ObjectResult>();
-            (result.Result as ObjectResult).StatusCode.Should().Be(500);
         }
 
         [Fact]

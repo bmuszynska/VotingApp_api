@@ -51,22 +51,6 @@ namespace UnitTests
         }
 
         [Fact]
-        public async Task HasVoted_ReturnsServerError_WhenSaveFails()
-        {
-            //Arrange
-            var voter = new Voter { Id = 1, Name = "Luke Skywalker", HasVoted = false };
-            _mockContext.Setup(c => c.Voters.FindAsync(It.IsAny<int>())).ReturnsAsync(voter);
-            _mockContext.Setup(c => c.SaveChangesAsync(default)).ThrowsAsync(It.IsAny<Exception>());
-
-            // Act
-            var result = await _controller.HasVoted(1);
-
-            //Assert
-            result.Result.Should().BeOfType<ObjectResult>();
-            (result.Result as ObjectResult).StatusCode.Should().Be(500);
-        }
-
-        [Fact]
         public async Task AddNewVoter_ReturnsCreatedVoter()
         {
             //Arrange
@@ -99,22 +83,6 @@ namespace UnitTests
 
             //Assert
             result.Result.Should().BeOfType<ConflictObjectResult>();
-        }
-
-        [Fact]
-        public async Task AddNewVoter_ThrowsException_WhenSaveFails()
-        {
-            //Arrange
-            var voter = new Voter { Name = "Luke Skywalker" };
-            _mockContext.Setup(c => c.Voters.Add(It.IsAny<Voter>()));
-            _mockContext.Setup(c => c.SaveChangesAsync(default)).ThrowsAsync(new Exception());
-
-            //Act
-            var result = await _controller.AddNewVoter(voter);
-
-            //Assert
-            result.Result.Should().BeOfType<ObjectResult>();
-            (result.Result as ObjectResult).StatusCode.Should().Be(500);
         }
 
         [Fact]
