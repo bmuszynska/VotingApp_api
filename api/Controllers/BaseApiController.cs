@@ -1,4 +1,5 @@
-﻿using Core.Entities;
+﻿using System.Collections.Generic;
+using Core.Entities;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,25 +17,34 @@ namespace api.Controllers
             _context = context;
         }
 
-        protected async Task<ActionResult> SaveChanges(Object obj)
+        public async Task<ActionResult<T>> Get<T>(int id, DbSet<T> dbSet) where T : Person
         {
-            try
+            var entity = await dbSet.FindAsync(id);
+
+            if (entity == null)
             {
-                await _context.SaveChangesAsync();
-                return Ok(obj);
+                return NotFound();
             }
-            catch (DbUpdateConcurrencyException)
+
+            return Ok(entity);
+        }
+
+        public async Task<ActionResult<T>> Add<T>(T entity, DbSet<T> dbSet) where T : Person
+        {
+            if (entity.Id != 0)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "A concurrency error occurred while saving changes to the database.");
+                var existingVoter = await Get<T>(entity.Id, dbSet);
+                if (existingVoter.Result is not NotFoundResult)
+                {
+                    return Conflict("An entity with the same ID already exists.");
+                }
             }
-            catch (DbUpdateException dbEx)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while saving changes to the database.");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message, stackTrace = ex.StackTrace });
-            }
+
+            dbSet.Add(entity);
+
+            await _context.SaveChangesAsync();
+
+            return Ok(entity);
         }
     }
 }
