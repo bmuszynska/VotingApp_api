@@ -1,9 +1,11 @@
-using Moq;
-using FluentAssertions;
-using Microsoft.AspNetCore.Mvc;
-using Core.Entities;
-using Infrastructure.Data;
 using api.Controllers;
+
+using Core.Entities;
+using FluentAssertions;
+using Infrastructure.Data;
+using Microsoft.AspNetCore.Mvc;
+
+using Moq;
 
 namespace UnitTests
 {
