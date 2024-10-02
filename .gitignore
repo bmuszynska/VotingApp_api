@@ -485,3 +485,5 @@ $RECYCLE.BIN/
 api/VotingAppDb.db-shm
 api/VotingAppDb.db-wal
 voting-app-client/
+ssl/localhost-key.pem
+ssl/localhost.pem
